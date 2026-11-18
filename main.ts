@@ -32,6 +32,31 @@ const RETRY_MAX_MS = 2_000;
 
 const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
 
+/** The server once main() has bound it; null before it exists and after it closes. */
+let liveServer: ReturnType<typeof createApp> | null = null;
+
+/**
+ * Die gracefully on SIGTERM/SIGINT instead of mid-request: stop accepting new
+ * connections, let the ones already in flight finish, and force the exit after
+ * a one-second guard so a hanging keep-alive can never hold the process open.
+ * A second signal skips the wait and exits at once.
+ */
+function armGracefulShutdown(): void {
+  let closing = false;
+  for (const signal of ['SIGTERM', 'SIGINT'] as const) {
+    process.once(signal, () => {
+      if (closing) process.exit(1);
+      closing = true;
+      process.stdout.write(`[entry] ${signal} received: closing the server\n`);
+      const server = liveServer;
+      liveServer = null;
+      if (server === null) process.exit(0);
+      server.close(() => process.exit(0));
+      setTimeout(() => process.exit(0), 1000).unref();
+    });
+  }
+}
+
 /** The wait after `attempt` failed requests: exponential from RETRY_INITIAL_MS, capped. */
 function retryDelay(attempt: number): number {
   return Math.min(RETRY_MAX_MS, RETRY_INITIAL_MS * 2 ** Math.min(attempt, 8));
@@ -78,6 +103,7 @@ async function waitForDone(): Promise<void> {
 
 /** Bound the port, register it, then wait for the env: the whole life of the process. */
 async function main(): Promise<void> {
+  armGracefulShutdown();
   const server = createApp();
   await new Promise<void>((resolve, reject) => {
     server.once('error', reject);
@@ -85,6 +111,7 @@ async function main(): Promise<void> {
   });
   const address = server.address();
   if (address === null || typeof address === 'string') throw new Error('the server did not bind an ephemeral TCP port');
+  liveServer = server;
   process.stdout.write(`[entry] listening on port ${address.port}\n`);
 
   await register(address.port);
