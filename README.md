@@ -1,8 +1,8 @@
 # github-core-clone-01-gc22
 
 [![make.fun bounty](https://make.fun/badge/github-core-clone-01.svg)](https://make.fun/bounty/github-core-clone-01)
-[![rank](https://make.fun/bounty/github-core-clone-01/jefriidan15/github-core-clone-01-gc22/rank.svg)](https://make.fun/bounty/github-core-clone-01)
-[![reward](https://make.fun/bounty/github-core-clone-01/jefriidan15/github-core-clone-01-gc22/reward.svg)](https://make.fun/bounty/github-core-clone-01)
+[![rank](https://make.fun/badge/github-core-clone-01/jefriidan15/github-core-clone-01-gc22/rank.svg)](https://make.fun/bounty/github-core-clone-01)
+[![reward](https://make.fun/badge/github-core-clone-01/jefriidan15/github-core-clone-01-gc22/reward.svg)](https://make.fun/bounty/github-core-clone-01)
 
 A GitHub-compatible git forge for the [make.fun bounty `github-core-clone-01`](https://make.fun/bounty/github-core-clone-01)
 ("Build a GitHub-compatible git forge", $500). One Node process, standard library only, no dependencies,
